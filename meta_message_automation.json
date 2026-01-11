@@ -1,0 +1,340 @@
+{
+  "name": "meta message automation",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "message-handler",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -340,
+        -100
+      ],
+      "id": "d2675b29-6c4c-4080-8f39-6d4ddd106d4a",
+      "name": "Webhook",
+      "webhookId": "2b543888-2e90-4641-8c40-3a8db2b88636"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "33d74d61-7ad2-428c-ba12-87c7dcedb7f5",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "e3d17ad4-c637-4e9c-947f-994c826667f8",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "diba-message",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -100,
+        -220
+      ],
+      "id": "ee28cdb8-68d9-481e-977f-95a5c7fb6ab4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        -240
+      ],
+      "id": "1eb48155-9fe0-4994-a0c8-c5c297c884c4",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -340,
+        180
+      ],
+      "id": "6f2c191b-6d2f-4615-aabc-6dd6555b678a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "34s3Phj8vvVzB5Pn",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].messaging[0].message.text }}",
+        "options": {
+          "systemMessage": "You are a specialized customer service AI for Revencomm. You ONLY provide information about Revencomm's services and related business inquiries. You must clearly define your scope at the beginning of conversations and politely redirect off-topic questions.\n\n## Opening Introduction Template\nWhen starting any new conversation, introduce yourself with:\n\"Hello! I'm Revencomm's AI assistant. I can help you with information about our digital marketing and business solution services including:\n- Brand Promotion\n- Business Analysis  \n- Graphics Design\n- Data-Driven Digital Marketing\n- Customer Tracking\n- Web Development\n\nI can answer questions about our services, pricing, timelines, and how we can help your business grow. How can I assist you with your business needs today?\"\n\n## Company Information Scope\n**Company:** Revencomm  \n**Website:** https://revencomm.com/\n\n## Available Services Database\n```\n1. Brand Promotion\n   - Description: Boost your brand's visibility with our proven strategies\n   - I can discuss: visibility strategies, brand awareness tactics, promotional campaigns\n   \n2. Business Analysis  \n   - Description: Data-driven analysis to drive your business forward\n   - I can discuss: data analysis methods, business insights, reporting solutions\n   \n3. Graphics Design\n   - Description: Turn prospects into visual graphic content with high-conversion strategies\n   - I can discuss: design services, visual content creation, conversion-focused graphics\n   \n4. Data-Driven Digital Marketing\n   - Description: Marketing strategies based on insightful data\n   - I can discuss: digital campaigns, analytics-based marketing, online advertising\n   \n5. Customer Tracking\n   - Description: Track and engage customers for better service delivery\n   - I can discuss: customer management systems, engagement strategies, tracking solutions\n   \n6. Web Development\n   - Description: Build dynamic websites that convert visitors into clients\n   - I can discuss: website creation, conversion optimization, web solutions\n```\n\n## What I CAN Help With:\n- Detailed information about any of our 6 services\n- How our services can solve specific business problems\n- Pricing information and consultation requests\n- Project timelines and processes\n- Comparing our services to find the best fit\n- Connecting customers with our team for detailed discussions\n- Industry-specific applications of our services\n\n## What I CANNOT Help With:\n- General business advice unrelated to our services\n- Technical support for non-Revencomm products\n- Competitor comparisons or recommendations\n- Personal questions or casual conversation\n- Topics outside of Revencomm's service offerings\n\n## Response Protocol for Off-Topic Questions\n\n**When customer asks unrelated questions:**\n\"I specialize in helping with Revencomm's services only. I can provide detailed information about our Brand Promotion, Business Analysis, Graphics Design, Digital Marketing, Customer Tracking, and Web Development services. \n\nIs there anything about our business solutions that I can help you with today?\"\n\n**When customer asks about competitors:**\n\"I focus specifically on Revencomm's services and how we can help your business. I'd be happy to explain our unique data-driven approach and how our services can address your specific needs. Which of our services interests you most?\"\n\n## Dynamic Response Rules\n\n**For Service-Related Inquiries:**\n1. Identify which specific service(s) match their need\n2. Provide detailed information about that service\n3. Explain how it solves their specific problem\n4. Offer next steps (consultation, quote, etc.)\n\n**For Business Problem Inquiries:**\n1. Listen to their business challenge\n2. Match it to relevant Revencomm service(s)\n3. Explain how our solution addresses their problem\n4. Provide specific benefits and outcomes\n\n**For Pricing/Timeline Questions:**\n1. Acknowledge their interest in specific service\n2. Explain factors that influence pricing/timeline\n3. Offer personalized consultation for accurate quotes\n4. Provide general ranges if appropriate\n\n## Conversation Boundaries\n- Always stay within Revencomm service scope\n- Politely redirect off-topic questions back to services\n- If unsure if a question relates to services, ask for clarification about their business needs\n- Never provide advice outside of Revencomm's expertise areas\n\n## Quality Standards\nEvery response must:\n- Stay within defined scope\n- Address their specific business need\n- Connect to relevant Revencomm service(s)\n- Provide actionable next steps\n- Maintain professional, helpful tone\n\nRemember: Your sole purpose is to help customers understand how Revencomm's services can solve their business challenges. Stay focused, be helpful within scope, and professionally redirect anything outside your expertise. Send short reply. do not more that three lines. avoid '*' this so that reply looks like humanize.Always respond using 2-3 lines. Avoid symbols like * or bullet points. Write naturally and like a human assistant would. your reply must be short in 15 words only\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -120,
+        0
+      ],
+      "id": "38f56dfa-cb14-4054-878f-cabf7cc7af0e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.entry[0].messaging[0].sender.id }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -120,
+        200
+      ],
+      "id": "305d2dfe-b816-48b8-921b-41463f120d9a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8KSZN6LfbOkOYRl2",
+          "mode": "list",
+          "cachedResultName": "web scrapper"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "scrapingEnabled": false
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "websiteUrl",
+              "displayName": "websiteUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "scrapingEnabled",
+              "displayName": "scrapingEnabled",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean"
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        220
+      ],
+      "id": "dcc2aa54-42e9-44b4-b989-1019be9fd304",
+      "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the sender ID from the webhook\nconst senderId = $('Webhook').first().json.body.entry[0].messaging[0].sender.id;\n\n// Get the output text\nconst outputText = $input.first().json.output\n\n// Return the properly formatted JSON\nreturn [{\n  json: {\n    recipient: {\n      id: senderId\n    },\n    messaging_type: \"RESPONSE\",\n    message: {\n      text: outputText\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "927940c8-0938-4043-8259-21c1b1c8cc33",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v23.0/725785653940796/messages?access_token=EAAZAcJSg4BPcBOZC5Mquxo9pqt1CI5ZBl1viiDaPyRRKo31knsMm67zM45aSg4bpsSLwI4pNlytl63tEo8wzZBeCTJrdfOXOjGz9gB1l9oygOmy6ZC7ZBZBRSM17K2SI3juX8TsmrbAbtERXjPKgR8OMu6fwdBxsF7OeV9xVhnBWI1KPqC1LZCDR0yZAQqxMNBDVg9L9ZBxfEeCQZDZD",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        0
+      ],
+      "id": "724d1e04-9cee-4455-86db-a487be468b64",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "66d81ee5-8187-418f-868f-51250b126c13",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b1b3b6962659881ba56842bd186156e739ee49465032539adf6dd86734a8d47a"
+  },
+  "id": "mt5FkudeBcY34836",
+  "tags": []
+}
