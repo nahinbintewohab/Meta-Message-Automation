@@ -191,10 +191,6 @@ For issues or questions:
 - Verify OpenAI API status
 - Contact Revencomm technical team
 
-## License
-
-Internal use for Revencomm customer service automation.
-
 ---
 
 **Last Updated**: January 2026  
